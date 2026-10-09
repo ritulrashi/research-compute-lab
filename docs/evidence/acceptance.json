@@ -1,0 +1,316 @@
+{
+  "summary": {
+    "timestamp_utc": "2026-10-09T00:08:27Z",
+    "checks": {
+      "two_worker_execution": [
+        "worker1",
+        "worker2"
+      ],
+      "ansible_idempotence": "changed=0 on all three nodes",
+      "distributed_result": {
+        "directory": "/shared/runs/e170bfab72434d5fbcf32d2f808a7e32",
+        "schema_version": 1,
+        "result": {
+          "samples": 1000000,
+          "shards": 8,
+          "seed": 42,
+          "results": [
+            {
+              "shard_id": 0,
+              "samples": 125000,
+              "inside_circle": 98238
+            },
+            {
+              "shard_id": 1,
+              "samples": 125000,
+              "inside_circle": 98043
+            },
+            {
+              "shard_id": 2,
+              "samples": 125000,
+              "inside_circle": 98276
+            },
+            {
+              "shard_id": 3,
+              "samples": 125000,
+              "inside_circle": 98161
+            },
+            {
+              "shard_id": 4,
+              "samples": 125000,
+              "inside_circle": 98215
+            },
+            {
+              "shard_id": 5,
+              "samples": 125000,
+              "inside_circle": 98181
+            },
+            {
+              "shard_id": 6,
+              "samples": 125000,
+              "inside_circle": 98076
+            },
+            {
+              "shard_id": 7,
+              "samples": 125000,
+              "inside_circle": 98263
+            }
+          ],
+          "pi_estimate": 3.141812
+        },
+        "result_sha256": "f3d55a77ed011477c4ffe1209b901321a1f655d75419b1b8b6d6737021bb728e",
+        "execution": {
+          "hosts": [
+            "worker1",
+            "worker2"
+          ],
+          "source_sha256": "77e4b20bdc784123359bf14d8485669270b63a9775c326feadf3fb5a2b3afa55",
+          "run_id": "e170bfab72434d5fbcf32d2f808a7e32",
+          "job_id": "12",
+          "elapsed_seconds": 10.123991938000017,
+          "serial_reference_matches": true
+        }
+      },
+      "monitoring": "three exporters, two available workers, provisioned dashboard",
+      "drained_worker_blocks_job": true,
+      "resume_runs_pending_job": true,
+      "worker_outage_alert": [
+        {
+          "labels": {
+            "alertname": "LabExporterDown",
+            "instance": "worker2:9108",
+            "job": "lab",
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "Lab node exporter is unreachable"
+          },
+          "state": "firing",
+          "activeAt": "2026-10-09T00:09:20.345988431Z",
+          "value": "0e+00"
+        }
+      ],
+      "worker_recovered": true
+    },
+    "status": "passed"
+  },
+  "commands": [
+    {
+      "command": [
+        "exec",
+        "-T",
+        "controller",
+        "sinfo",
+        "-h",
+        "-N",
+        "-o",
+        "%N %T"
+      ],
+      "exit_code": 0,
+      "stdout": "worker1 idle\nworker2 idle\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "controller",
+        "srun",
+        "--nodes=2",
+        "--ntasks=2",
+        "--mem=64M",
+        "hostname"
+      ],
+      "exit_code": 0,
+      "stdout": "worker1\nworker2\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "controller",
+        "ansible-playbook",
+        "-i",
+        "localhost,",
+        "-c",
+        "local",
+        "/opt/infra/configure.yml"
+      ],
+      "exit_code": 0,
+      "stdout": "\nPLAY [Configure an isolated lab node] ******************************************\n\nTASK [Create daemon directories] ***********************************************\nok: [localhost] => (item={'path': '/run/munge', 'owner': 'munge'})\nok: [localhost] => (item={'path': '/var/log/munge', 'owner': 'munge'})\nok: [localhost] => (item={'path': '/var/lib/munge', 'owner': 'munge'})\nok: [localhost] => (item={'path': '/var/lib/slurm', 'owner': 'slurm'})\nok: [localhost] => (item={'path': '/var/log/slurm', 'owner': 'slurm'})\nok: [localhost] => (item={'path': '/var/spool/slurmd', 'owner': 'root'})\nok: [localhost] => (item={'path': '/etc/slurm', 'owner': 'root'})\n\nTASK [Install shared authentication key] ***************************************\nok: [localhost]\n\nTASK [Install scheduler configuration] *****************************************\nok: [localhost]\n\nTASK [Install process supervision configuration] *******************************\nok: [localhost]\n\nTASK [Configure container cgroup mode] *****************************************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=5    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   \n\n",
+      "stderr": "[WARNING]: Host 'localhost' is using the discovered Python interpreter at '/usr/bin/python3.14', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.\n"
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "worker1",
+        "ansible-playbook",
+        "-i",
+        "localhost,",
+        "-c",
+        "local",
+        "/opt/infra/configure.yml"
+      ],
+      "exit_code": 0,
+      "stdout": "\nPLAY [Configure an isolated lab node] ******************************************\n\nTASK [Create daemon directories] ***********************************************\nok: [localhost] => (item={'path': '/run/munge', 'owner': 'munge'})\nok: [localhost] => (item={'path': '/var/log/munge', 'owner': 'munge'})\nok: [localhost] => (item={'path': '/var/lib/munge', 'owner': 'munge'})\nok: [localhost] => (item={'path': '/var/lib/slurm', 'owner': 'slurm'})\nok: [localhost] => (item={'path': '/var/log/slurm', 'owner': 'slurm'})\nok: [localhost] => (item={'path': '/var/spool/slurmd', 'owner': 'root'})\nok: [localhost] => (item={'path': '/etc/slurm', 'owner': 'root'})\n\nTASK [Install shared authentication key] ***************************************\nok: [localhost]\n\nTASK [Install scheduler configuration] *****************************************\nok: [localhost]\n\nTASK [Install process supervision configuration] *******************************\nok: [localhost]\n\nTASK [Configure container cgroup mode] *****************************************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=5    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   \n\n",
+      "stderr": "[WARNING]: Host 'localhost' is using the discovered Python interpreter at '/usr/bin/python3.14', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.\n"
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "worker2",
+        "ansible-playbook",
+        "-i",
+        "localhost,",
+        "-c",
+        "local",
+        "/opt/infra/configure.yml"
+      ],
+      "exit_code": 0,
+      "stdout": "\nPLAY [Configure an isolated lab node] ******************************************\n\nTASK [Create daemon directories] ***********************************************\nok: [localhost] => (item={'path': '/run/munge', 'owner': 'munge'})\nok: [localhost] => (item={'path': '/var/log/munge', 'owner': 'munge'})\nok: [localhost] => (item={'path': '/var/lib/munge', 'owner': 'munge'})\nok: [localhost] => (item={'path': '/var/lib/slurm', 'owner': 'slurm'})\nok: [localhost] => (item={'path': '/var/log/slurm', 'owner': 'slurm'})\nok: [localhost] => (item={'path': '/var/spool/slurmd', 'owner': 'root'})\nok: [localhost] => (item={'path': '/etc/slurm', 'owner': 'root'})\n\nTASK [Install shared authentication key] ***************************************\nok: [localhost]\n\nTASK [Install scheduler configuration] *****************************************\nok: [localhost]\n\nTASK [Install process supervision configuration] *******************************\nok: [localhost]\n\nTASK [Configure container cgroup mode] *****************************************\nok: [localhost]\n\nPLAY RECAP *********************************************************************\nlocalhost                  : ok=5    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   \n\n",
+      "stderr": "[WARNING]: Host 'localhost' is using the discovered Python interpreter at '/usr/bin/python3.14', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.20/reference_appendices/interpreter_discovery.html for more information.\n"
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "--user",
+        "researcher",
+        "controller",
+        "python3",
+        "distributed.py",
+        "submit",
+        "--samples",
+        "1000000",
+        "--shards",
+        "8"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"directory\": \"/shared/runs/e170bfab72434d5fbcf32d2f808a7e32\", \"schema_version\": 1, \"result\": {\"samples\": 1000000, \"shards\": 8, \"seed\": 42, \"results\": [{\"shard_id\": 0, \"samples\": 125000, \"inside_circle\": 98238}, {\"shard_id\": 1, \"samples\": 125000, \"inside_circle\": 98043}, {\"shard_id\": 2, \"samples\": 125000, \"inside_circle\": 98276}, {\"shard_id\": 3, \"samples\": 125000, \"inside_circle\": 98161}, {\"shard_id\": 4, \"samples\": 125000, \"inside_circle\": 98215}, {\"shard_id\": 5, \"samples\": 125000, \"inside_circle\": 98181}, {\"shard_id\": 6, \"samples\": 125000, \"inside_circle\": 98076}, {\"shard_id\": 7, \"samples\": 125000, \"inside_circle\": 98263}], \"pi_estimate\": 3.141812}, \"result_sha256\": \"f3d55a77ed011477c4ffe1209b901321a1f655d75419b1b8b6d6737021bb728e\", \"execution\": {\"hosts\": [\"worker1\", \"worker2\"], \"source_sha256\": \"77e4b20bdc784123359bf14d8485669270b63a9775c326feadf3fb5a2b3afa55\", \"run_id\": \"e170bfab72434d5fbcf32d2f808a7e32\", \"job_id\": \"12\", \"elapsed_seconds\": 10.123991938000017, \"serial_reference_matches\": true}}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "controller",
+        "scontrol",
+        "update",
+        "NodeName=worker1",
+        "State=DRAIN",
+        "Reason=lab-acceptance"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "--user",
+        "researcher",
+        "controller",
+        "sbatch",
+        "--parsable",
+        "--nodelist=worker1",
+        "--mem=64M",
+        "--output=/shared/runs/drain-%j.log",
+        "--wrap",
+        "hostname"
+      ],
+      "exit_code": 0,
+      "stdout": "20\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "controller",
+        "squeue",
+        "-h",
+        "-j",
+        "20",
+        "-o",
+        "%T %R"
+      ],
+      "exit_code": 0,
+      "stdout": "PENDING (ReqNodeNotAvail, May be reserved for other job)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "controller",
+        "scontrol",
+        "update",
+        "NodeName=worker1",
+        "State=RESUME"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "controller",
+        "scontrol",
+        "show",
+        "job",
+        "20"
+      ],
+      "exit_code": 0,
+      "stdout": "JobId=20 JobName=wrap\n   UserId=researcher(2000) GroupId=researcher(2000) MCS_label=N/A\n   Priority=4294901754 Nice=0 Account=(null) QOS=(null)\n   JobState=PENDING Reason=ReqNodeNotAvail,_May_be_reserved_for_other_job Dependency=(null)\n   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0\n   RunTime=00:00:00 TimeLimit=00:10:00 TimeMin=N/A\n   SubmitTime=2026-10-09T00:09:09 EligibleTime=2026-10-09T00:09:09\n   AccrueTime=Unknown\n   StartTime=Unknown EndTime=Unknown Deadline=N/A\n   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-10-09T00:09:09 Scheduler=Main\n   Partition=local AllocNode:Sid=controller:942\n   ReqNodeList=worker1 ExcNodeList=(null)\n   NodeList=\n   NumNodes=1-1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:*\n   ReqTRES=cpu=1,mem=64M,node=1,billing=1\n   AllocTRES=(null)\n   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*\n   MinCPUsNode=1 MinMemoryNode=64M MinTmpDiskNode=0\n   Features=(null) DelayBoot=00:00:00\n   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)\n   Command=(null)\n   SubmitLine=sbatch --parsable --nodelist=worker1 --mem=64M --output=/shared/runs/drain-%j.log --wrap hostname\n   WorkDir=/opt/lab\n   StdErr=\n   StdIn=/dev/null\n   StdOut=/shared/runs/drain-20.log\n\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "exec",
+        "-T",
+        "controller",
+        "scontrol",
+        "show",
+        "job",
+        "20"
+      ],
+      "exit_code": 0,
+      "stdout": "JobId=20 JobName=wrap\n   UserId=researcher(2000) GroupId=researcher(2000) MCS_label=N/A\n   Priority=4294901754 Nice=0 Account=(null) QOS=(null)\n   JobState=COMPLETED Reason=None Dependency=(null)\n   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0\n   RunTime=00:00:01 TimeLimit=00:10:00 TimeMin=N/A\n   SubmitTime=2026-10-09T00:09:09 EligibleTime=2026-10-09T00:09:09\n   AccrueTime=2026-10-09T00:09:09\n   StartTime=2026-10-09T00:09:11 EndTime=2026-10-09T00:09:12 Deadline=N/A\n   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-10-09T00:09:11 Scheduler=Main\n   Partition=local AllocNode:Sid=controller:942\n   ReqNodeList=worker1 ExcNodeList=(null)\n   NodeList=worker1\n   BatchHost=worker1\n   NumNodes=1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:*\n   ReqTRES=cpu=1,mem=64M,node=1,billing=1\n   AllocTRES=cpu=1,mem=64M,node=1,billing=1\n   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*\n   MinCPUsNode=1 MinMemoryNode=64M MinTmpDiskNode=0\n   Features=(null) DelayBoot=00:00:00\n   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)\n   Command=(null)\n   SubmitLine=sbatch --parsable --nodelist=worker1 --mem=64M --output=/shared/runs/drain-%j.log --wrap hostname\n   WorkDir=/opt/lab\n   StdErr=\n   StdIn=/dev/null\n   StdOut=/shared/runs/drain-20.log\n\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "stop",
+        "worker2"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": " Container research-compute-lab-worker2-1  Stopping\n Container research-compute-lab-worker2-1  Stopped\n"
+    },
+    {
+      "command": [
+        "start",
+        "worker2"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": " Container research-compute-lab-init-1  Starting\n Container research-compute-lab-init-1  Started\n Container research-compute-lab-init-1  Waiting\n Container research-compute-lab-init-1  Exited\n Container research-compute-lab-worker2-1  Starting\n Container research-compute-lab-worker2-1  Started\n"
+    }
+  ],
+  "environment": {
+    "docker": "28.1.1",
+    "compose": "2.35.1-desktop.1",
+    "slurm": "25.11.2",
+    "python": "3.14.4",
+    "ansible_core": "2.20.1",
+    "base": "Ubuntu 26.04",
+    "host": "Windows / Docker Desktop Linux engine / WSL2",
+    "unit_tests_passed": 11
+  }
+}

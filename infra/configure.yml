@@ -1,0 +1,42 @@
+- name: Configure an isolated lab node
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Create daemon directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner }}"
+        group: "{{ item.owner }}"
+        mode: "0755"
+      loop:
+        - {path: /run/munge, owner: munge}
+        - {path: /var/log/munge, owner: munge}
+        - {path: /var/lib/munge, owner: munge}
+        - {path: /var/lib/slurm, owner: slurm}
+        - {path: /var/log/slurm, owner: slurm}
+        - {path: /var/spool/slurmd, owner: root}
+        - {path: /etc/slurm, owner: root}
+    - name: Install shared authentication key
+      ansible.builtin.copy:
+        src: /auth/munge.key
+        dest: /etc/munge/munge.key
+        remote_src: true
+        owner: munge
+        group: munge
+        mode: "0400"
+    - name: Install scheduler configuration
+      ansible.builtin.copy:
+        src: /opt/infra/slurm.conf
+        dest: /etc/slurm/slurm.conf
+        mode: "0644"
+    - name: Install process supervision configuration
+      ansible.builtin.copy:
+        src: /opt/infra/supervisor.conf
+        dest: /etc/supervisor/conf.d/lab.conf
+        mode: "0644"
+    - name: Configure container cgroup mode
+      ansible.builtin.copy:
+        src: /opt/infra/cgroup.conf
+        dest: /etc/slurm/cgroup.conf
+        mode: "0644"

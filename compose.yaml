@@ -1,0 +1,84 @@
+name: research-compute-lab
+x-node: &node
+  image: research-compute-lab:local
+  build: .
+  volumes:
+    - auth:/auth:ro
+    - shared:/shared
+  mem_limit: 1g
+  cpus: 2
+  depends_on:
+    init:
+      condition: service_completed_successfully
+  restart: unless-stopped
+services:
+  init:
+    image: research-compute-lab:local
+    build: .
+    entrypoint: ["bash", "-c", "test -s /auth/munge.key || head -c 1024 /dev/urandom > /auth/munge.key; chmod 600 /auth/munge.key; mkdir -p /shared/runs; chown -R 2000:2000 /shared/runs"]
+    volumes:
+      - auth:/auth
+      - shared:/shared
+  controller:
+    <<: *node
+    hostname: controller
+    environment:
+      LAB_ROLE: controller
+    volumes:
+      - auth:/auth:ro
+      - shared:/shared
+      - controller-state-v25:/var/lib/slurm
+    healthcheck:
+      test: ["CMD-SHELL", "scontrol ping | grep -q 'is UP'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  worker1:
+    <<: *node
+    hostname: worker1
+    environment:
+      LAB_ROLE: worker
+    healthcheck:
+      test: ["CMD-SHELL", "supervisorctl status slurm | grep -q RUNNING"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  worker2:
+    <<: *node
+    hostname: worker2
+    environment:
+      LAB_ROLE: worker
+    healthcheck:
+      test: ["CMD-SHELL", "supervisorctl status slurm | grep -q RUNNING"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    ports: ["127.0.0.1:19090:9090"]
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana:11.6.0
+    ports: ["127.0.0.1:13000:3000"]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+volumes:
+  auth:
+  shared:
+  controller-state-v25:
+  prometheus-data:
+  grafana-data:

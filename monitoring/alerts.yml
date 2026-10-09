@@ -1,0 +1,18 @@
+groups:
+  - name: research-lab
+    rules:
+      - alert: LabExporterDown
+        expr: up{job="lab"} == 0
+        for: 10s
+        labels: {severity: warning}
+        annotations: {summary: "Lab node exporter is unreachable"}
+      - alert: SlurmWorkerUnavailable
+        expr: lab_slurm_node_available == 0
+        for: 10s
+        labels: {severity: warning}
+        annotations: {summary: "Slurm worker cannot accept normal jobs"}
+      - alert: SlurmControllerQueryFailed
+        expr: lab_slurm_query_success == 0
+        for: 10s
+        labels: {severity: critical}
+        annotations: {summary: "Exporter cannot query Slurm"}
